@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Employee Management Portal — Login</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-hero">
+      <div class="brand"><span class="logo-dot"></span> Employee Management Portal</div>
+      <div>
+        <h1>Real-time attendance, breaks &amp; productivity — all in one place.</h1>
+        <p>Track work sessions live, manage breaks, approve leave, assign tasks, and get full visibility into your team's day — powered by a real-time engine, not page refreshes.</p>
+        <div class="hero-stats">
+          <div><b>Live</b><span>Presence tracking</span></div>
+          <div><b>Secure</b><span>Role-based access</span></div>
+          <div><b>Accurate</b><span>Server-authoritative time</span></div>
+        </div>
+      </div>
+      <div style="font-size:12px; opacity:.7;">© 2026 Employee Management Portal</div>
+    </div>
+
+    <div class="login-form-wrap">
+      <div class="login-card">
+        <h2>Welcome back</h2>
+        <p class="sub">Sign in to continue to your dashboard.</p>
+
+        <div class="error-box" id="errorBox"></div>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="identifier">Email / Employee ID</label>
+            <input type="text" id="identifier" placeholder="you@company.com" autocomplete="username" required />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
+          </div>
+          <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+        </form>
+        <div style="margin-top:14px; text-align:center;">
+          <button class="link-btn" type="button" onclick="toast('Please contact your HR administrator to reset your password.', 'info')">Forgot Password?</button>
+        </div>
+
+        <div class="demo-hint">
+          <b>Demo accounts</b><br/>
+          Admin: admin@company.com / Admin@123<br/>
+          Employee: john@company.com / Employee@123
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session recovery modal -->
+  <div class="modal-overlay" id="recoveryModal">
+    <div class="modal">
+      <h3>Previous active session detected</h3>
+      <p class="modal-sub" id="recoveryText"></p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="closePrevBtn">Close Previous Session</button>
+        <button class="btn btn-primary" id="resumeBtn">Resume Session</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const form = document.getElementById('loginForm');
+    const errorBox = document.getElementById('errorBox');
+    const loginBtn = document.getElementById('loginBtn');
+    const recoveryModal = document.getElementById('recoveryModal');
+    const recoveryText = document.getElementById('recoveryText');
+    let pendingUserRole = null;
+
+    // If already logged in, redirect straight to the right dashboard.
+    (async () => {
+      try {
+        const { user } = await api.get('/auth/me');
+        redirectFor(user.role);
+      } catch (e) { /* not logged in — stay on login page */ }
+    })();
+
+    function redirectFor(role) {
+      window.location.href = role === 'admin' ? '/admin/dashboard.html' : '/employee/dashboard.html';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBox.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in…';
+
+      try {
+        const identifier = document.getElementById('identifier').value.trim();
+        const password = document.getElementById('password').value;
+        const result = await api.post('/auth/login', { identifier, password });
+        pendingUserRole = result.user.role;
+
+        if (result.recoverableSession) {
+          const lt = new Date(result.recoverableSession.loginTime).toLocaleTimeString();
+          const la = new Date(result.recoverableSession.lastActivity).toLocaleTimeString();
+          recoveryText.innerHTML = `A previous active session was found.<br/><br/><b>Login:</b> ${lt}<br/><b>Last server activity:</b> ${la}`;
+          recoveryModal.classList.add('open');
+        } else {
+          // No prior session — start a fresh one, then go to dashboard.
+          try { await api.post('/auth/session/start'); } catch (e) { /* non-fatal */ }
+          redirectFor(pendingUserRole);
+        }
+      } catch (err) {
+        errorBox.textContent = err.message || 'Login failed';
+        errorBox.style.display = 'block';
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+      }
+    });
+
+    document.getElementById('resumeBtn').addEventListener('click', async () => {
+      try {
+        await api.post('/auth/session/resume');
+        toast('Session resumed', 'success');
+        redirectFor(pendingUserRole);
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('closePrevBtn').addEventListener('click', async () => {
+      try {
+        await api.post('/auth/session/close-previous');
+        await api.post('/auth/session/start');
+        toast('Previous session closed. Starting fresh session.', 'success');
+        redirectFor(pendingUserRole);
+      } catch (err) {
+        toast(err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

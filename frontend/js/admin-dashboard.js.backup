@@ -1,0 +1,5 @@
+let CURRENT_USER = null;
+let ACTIVE_VIEW = 'dashboard';
+let SOCKET = null;
+let DEPARTMENTS_CACHE = [];
+let EMPLOYEES_CACHE = [];

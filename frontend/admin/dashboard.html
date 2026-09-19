@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard — Employee Management Portal</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand"><span class="logo-dot"></span> EM Portal — Admin</div>
+      <nav class="nav-group" id="navGroup">
+        <div class="nav-item active" data-view="dashboard">📊 Dashboard</div>
+        <div class="nav-item" data-view="employees">👥 Employees</div>
+        <div class="nav-item" data-view="departments">🏢 Departments</div>
+        <div class="nav-item" data-view="attendance">🕒 Attendance</div>
+        <div class="nav-item" data-view="leaves">🗓️ Leave Requests</div>
+        <div class="nav-item" data-view="tasks">✅ Tasks</div>
+        <div class="nav-item" data-view="reports">📑 Reports</div>
+      </nav>
+      <div class="sidebar-foot">
+        <button class="btn btn-outline btn-sm" style="width:100%" onclick="toggleTheme()">Toggle Theme</button>
+      </div>
+    </aside>
+
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+          <div class="topbar-title" id="viewTitle">Admin Dashboard</div>
+        </div>
+        <div class="topbar-right">
+          <div class="user-menu">
+            <div class="avatar" id="userAvatar">--</div>
+            <div class="who"><b id="userName">Loading…</b><span>Administrator</span></div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="logoutBtn">Logout</button>
+        </div>
+      </header>
+      <main class="content" id="content">
+        <div class="loading-spinner"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add/Edit Employee Modal -->
+  <div class="modal-overlay" id="employeeModal">
+    <div class="modal" style="max-width:520px;">
+      <h3 id="employeeModalTitle">Add Employee</h3>
+      <p class="modal-sub">Fill in the employee's details below.</p>
+      <form id="employeeForm">
+        <input type="hidden" id="empFormId" />
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div class="form-field"><label>Employee ID</label><input class="text-input" id="empFormEmployeeId" required /></div>
+          <div class="form-field"><label>Full Name</label><input class="text-input" id="empFormName" required /></div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div class="form-field"><label>Email</label><input class="text-input" type="email" id="empFormEmail" required /></div>
+          <div class="form-field"><label>Password <span id="pwHint" class="muted" style="font-weight:400;"></span></label><input class="text-input" type="password" id="empFormPassword" /></div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div class="form-field"><label>Department</label><select class="select-input" id="empFormDept" style="width:100%"></select></div>
+          <div class="form-field"><label>Designation</label><input class="text-input" id="empFormDesignation" /></div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div class="form-field"><label>Phone</label><input class="text-input" id="empFormPhone" /></div>
+          <div class="form-field"><label>Role</label>
+            <select class="select-input" id="empFormRole" style="width:100%">
+              <option value="employee">Employee</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('employeeModal').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="empFormSubmitBtn">Save Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Assign Task Modal -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal">
+      <h3>Assign Task</h3>
+      <form id="taskForm">
+        <div class="form-field" style="margin-bottom:14px;"><label>Assign To</label><select class="select-input" id="taskFormAssignee" style="width:100%"></select></div>
+        <div class="form-field" style="margin-bottom:14px;"><label>Title</label><input class="text-input" style="width:100%" id="taskFormTitle" required /></div>
+        <div class="form-field" style="margin-bottom:14px;"><label>Description</label><textarea class="textarea-input" style="width:100%" id="taskFormDesc" rows="3"></textarea></div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div class="form-field"><label>Priority</label>
+            <select class="select-input" id="taskFormPriority" style="width:100%">
+              <option value="LOW">Low</option><option value="MEDIUM" selected>Medium</option>
+              <option value="HIGH">High</option><option value="URGENT">Urgent</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Due Date</label><input class="text-input" style="width:100%" type="date" id="taskFormDue" /></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('taskModal').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Assign Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Department Modal -->
+  <div class="modal-overlay" id="deptModal">
+    <div class="modal">
+      <h3>Add Department</h3>
+      <form id="deptForm">
+        <div class="form-field" style="margin-bottom:14px;"><label>Name</label><input class="text-input" style="width:100%" id="deptFormName" required /></div>
+        <div class="form-field"><label>Description</label><textarea class="textarea-input" style="width:100%" id="deptFormDesc" rows="2"></textarea></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('deptModal').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Department</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/socket.io.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-dashboard.js"></script>
+</body>
+</html>

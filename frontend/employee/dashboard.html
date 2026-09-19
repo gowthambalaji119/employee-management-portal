@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Employee Dashboard — Employee Management Portal</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand"><span class="logo-dot"></span> EM Portal</div>
+      <nav class="nav-group" id="navGroup">
+        <div class="nav-item active" data-view="dashboard">📊 Dashboard</div>
+        <div class="nav-item" data-view="attendance">🕒 My Attendance</div>
+        <div class="nav-item" data-view="tasks">✅ My Tasks</div>
+        <div class="nav-item" data-view="leave">🗓️ Leave</div>
+        <div class="nav-item" data-view="notifications">🔔 Notifications</div>
+        <div class="nav-item" data-view="profile">👤 Profile</div>
+      </nav>
+      <div class="sidebar-foot">
+        <button class="btn btn-outline btn-sm" style="width:100%" onclick="toggleTheme()">Toggle Theme</button>
+      </div>
+    </aside>
+
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+          <div class="topbar-title" id="viewTitle">Dashboard</div>
+        </div>
+        <div class="topbar-right">
+          <button class="icon-btn" id="notifBtn" title="Notifications">
+            🔔<span class="badge-dot" id="notifDot" style="display:none"></span>
+          </button>
+          <div class="user-menu" id="userMenu">
+            <div class="avatar" id="userAvatar">--</div>
+            <div class="who">
+              <b id="userName">Loading…</b>
+              <span id="userRole">—</span>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="logoutBtn">Logout</button>
+        </div>
+      </header>
+
+      <main class="content" id="content">
+        <div class="loading-spinner"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Confirm logout modal -->
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal">
+      <h3>End work session?</h3>
+      <p class="modal-sub">Logging out will close your active session and record today's final working &amp; break hours.</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="document.getElementById('logoutModal').classList.remove('open')">Cancel</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave apply modal -->
+  <div class="modal-overlay" id="leaveModal">
+    <div class="modal">
+      <h3>Apply for Leave</h3>
+      <p class="modal-sub">Submit a request for admin approval.</p>
+      <form id="leaveForm">
+        <div class="form-field" style="margin-bottom:14px;">
+          <label>Leave Type</label>
+          <select id="leaveType" class="select-input" style="width:100%">
+            <option value="CASUAL">Casual</option>
+            <option value="SICK">Sick</option>
+            <option value="EARNED">Earned</option>
+            <option value="UNPAID">Unpaid</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div class="form-field"><label>From</label><input type="date" id="leaveFrom" class="text-input" required /></div>
+          <div class="form-field"><label>To</label><input type="date" id="leaveTo" class="text-input" required /></div>
+        </div>
+        <div class="form-field">
+          <label>Reason</label>
+          <textarea id="leaveReason" class="textarea-input" rows="3" style="width:100%"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('leaveModal').classList.remove('open')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/socket.io.min.js"></script>
+  <script src="/js/api.js?v=2"></script>
+  <script src="/js/employee-dashboard.js?v=2"></script>
+</body>
+</html>
